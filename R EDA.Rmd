@@ -1,0 +1,354 @@
+---
+title: "R - EDA"
+author: "Lydia Gathoni"
+date: "29 February 2020"
+output:
+  html_document:
+    df_print: paged
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Research Question
+
+A Kenyan entrepreneur has created an online cryptography course and would want to advertise it on her blog. She currently targets audiences originating from various countries. In the past, she ran ads to advertise a related course on the same blog and collected data in the process. She would now like to employ your services as a Data Science Consultant to help her identify which individuals are most likely to click on her ads. 
+
+In order to work on the above problem, you need to do the following:
+
+Define the question, the metric for success, the context, experimental design taken and the appropriateness of the available data to answer the given question
+
+Find and deal with outliers, anomalies, and missing data within the dataset.
+
+Perform univariate and bivariate analysis recording your observations.
+
+Implement the solution by performing the respective analysis i.e. factor analysis, principal component analysis, and discriminant analysis.
+
+Challenge your solution by providing insights on how you can make improvements.
+
+
+```{r getwd}
+adv <- read.csv("advertising.csv")
+head(adv)
+```
+
+### Explore the dataset
+
+Summary, information, dimension
+
+```{r summary}
+# summary of the dataset
+summary(adv)
+```
+
+```{r info}
+# information about the dataset
+str(adv)
+```
+
+```{r}
+# dimension of the dataset
+dim(adv)
+```
+The dataset has 1000 rows and 10 columns
+
+### Data Cleaning
+
+#### Missing Values
+
+```{r missing values}
+# Total missing values in each column 
+# by using the function colSums()
+
+colSums(is.na(adv))
+
+```
+
+Our dataset has no missing values
+
+#### Duplicated rows
+```{r duplicated rows}
+# duplicated rows in the dataset df 
+# and assign to a variable duplicated_rows
+
+duplicated_rows <- adv[duplicated(adv),]
+
+# Lets print out the variable duplicated_rows and see these duplicated rows 
+
+duplicated_rows
+```
+We have no duplicated rows in the dataset
+
+```{r outliers}
+# plot a boxplot to help us visualise any existing outliers 
+
+boxplot(adv
+        )
+
+```
+We identify outliers in the Area.Income column
+We can narrow down to list out the outliers in that column
+
+```{r}
+boxplot(adv$Area.Income,
+main = "Outliers in Area.Income",
+xlab = "Area.Income",
+col = "maroon",
+border = "orange",
+horizontal = TRUE,
+notch = TRUE
+)
+```
+We identify outliers in the column
+
+
+### Exploratory Data Analysis
+#### Univariate Analysis
+
+```{r}
+table(adv$Age)
+```
+Most of the people in the dataset are 31 years with 60 people
+
+
+#### Mean daily time spent on site
+
+```{r}
+# mean of the daily time spent on site
+mean(adv$Daily.Time.Spent.on.Site)
+```
+65 minutes is the average time spent on site
+
+
+#### Mean daily internet usage
+```{r}
+mean(adv$Daily.Internet.Usage)
+```
+180 minutes is the average daily internet usage
+
+##### Missing Values
+
+```{r}
+plot_missing(adv)
+```
+
+##### Histograms
+
+```{r}
+# Histograms
+plot_histogram(adv)
+
+```
+##### Daily Time spent on site
+```{r}
+# Daily time spent on site distribution
+#
+x = hist(adv$Daily.Time.Spent.on.Site,
+         main = "Daily time Spent on Site",
+         xlab = "Daily time Spent on Site",
+         col = "maroon"
+)
+```
+The data is skewed to the right more people spend more time on the site
+
+```{r}
+summary(adv$Daily.Time.Spent.on.Site)
+```
+
+
+##### Daily Internet Usage
+```{r}
+# Daily Internet Usage
+#
+y = hist(adv$Daily.Internet.Usage,
+         main = "Daily time Spent on Site",
+         xlab = "Daily time Spent on Site",
+         col = "blue"
+)
+```
+
+```{r}
+summary(adv$Daily.Internet.Usage)
+```
+The average daily internet usage is 180 minutes
+
+```{r}
+hist(adv$Age,
+     main = "Histogram of Age",
+     xlab = "Age in Years",
+     col = "pink")
+```
+Most people are between age 30 and 35 wiith the least being above 60
+
+```{r}
+ # fetch the frequency of gender from the dataset
+gender <- adv$Male
+gender_freq <- table(gender)
+barplot(gender_freq,
+        col = "yellow",
+        legend())
+```
+The females represented by 0 are more than the males
+
+##### Distribution of Area income
+```{r}
+z = hist(adv$Area.Income,
+         main = "Area Income distribution",
+         xlab = "Area",
+         col = "purple"
+)
+```
+Area income is skewed to the right
+
+##### Pie Chart
+
+```{r}
+pie(table(adv$Male))
+```
+0 value which represents females is more than 1 which represents males
+
+##### Density plot
+
+```{r}
+
+plot_density(adv)
+
+```
+
+#### Bivariate Analysis
+
+```{r covariance}
+
+# checking for covariance
+# covariance is a number that reflects the degree to which two variable vary together
+
+timespent <- adv$Daily.Time.Spent.on.Site
+internetusage<- adv$Daily.Internet.Usage
+
+# Using the cov() function to determine the covariance
+
+cov(timespent, internetusage)
+```
+A high covariance basically indicates there is a strong relationship between the variables
+We have a covariance of 360 which means this two are positively highly related
+
+
+Correlation
+
+```{r correlation}
+
+# checking for correlation
+# correlation is a normalized measurement of how the two are linearly related
+
+timespent <- adv$Daily.Time.Spent.on.Site
+internetusage<- adv$Daily.Internet.Usage
+
+# Using the cor() function to determine the covariance
+
+cor(timespent, internetusage)
+
+```
+Shows a relation between the two
+
+##### Scatterplot
+```{r}
+
+# Scatterplot
+
+timespent <- adv$Daily.Time.Spent.on.Site
+internetusage<- adv$Daily.Internet.Usage
+
+plot(timespent, internetusage, xlab="Daily time spent on site", ylab="Daily Internet Usage")
+```
+```{r}
+plot(Area.Income ~ Daily.Internet.Usage, data = adv)
+```
+
+
+##### Pairplot
+```{r}
+# Plotting a a pair of histograms
+options(repr.plot.width = 13, repr.plot.height = 7)
+ggplot(data = adv, aes(x = Age, fill = Clicked.on.Ad))+
+    geom_histogram(bins = 35, color = 'cyan') +
+    labs(title = 'Age distribution', x = 'Age', y = 'Frequency', fill = 'Clicked on ad') +
+        scale_color_brewer(palette = 'Set1') +
+        theme(plot.title = element_text(size = 18, face = 'bold', color = 'darkmagenta'),
+             axis.title.x = element_text(size = 15, face = 'bold', color = 'darkmagenta'),
+             axis.title.y = element_text(size = 15, face = 'bold', color = 'darkmagenta'),
+             axis.text.x = element_text(size = 13, angle = 0),
+             axis.text.y = element_text(size = 13),
+             legend.title = element_text(size = 13, color = 'darkmagenta'),
+             legend.text = element_text(size = 12))
+```
+
+
+```{r}
+# Plotting density plot
+options(repr.plot.width = 13, repr.plot.height = 7)
+p1 = ggplot(data = adv, aes(Age)) +
+        geom_density(aes(fill=factor(Clicked.on.Ad)), alpha = 0.8) +
+        labs(title = 'Clicked on ad density plot', x = 'Age', fill = 'Clicked on ad') +
+        scale_color_brewer(palette = 'cool') +
+        theme(plot.title = element_text(size = 18, face = 'bold', color = 'darkmagenta'),
+             axis.title.x = element_text(size = 15, face = 'bold', color = 'darkmagenta'),
+             axis.title.y = element_text(size = 15, face = 'bold', color = 'darkmagenta'),
+             axis.text.x = element_text(size = 13, angle = 0),
+             axis.text.y = element_text(size = 13),
+             legend.title = element_text(size = 13, color = 'darkmagenta'),
+             legend.text = element_text(size = 12))
+plot(p1)
+```
+
+```{r}
+coad_frequency = table(adv$Clicked.on.Ad)
+coad_frequency
+# Barplot for clicked on ad variable.
+#
+bar_coad = barplot(coad_frequency,
+                   main = 'clicked on ad_frequency',
+                   xlab = 'gender',
+                   ylab = 'count',
+                   col = 'orange')
+```
+The values 0 and 1 in the variable are even.
+This is a perrfectly balanced dataset.
+
+```{r}
+# Frequency polygon
+options(repr.plot.width = 13, repr.plot.height = 7)
+ggplot(data = adv, aes(x = Area.Income, col = Clicked.on.Ad))+
+    geom_freqpoly(bins = 50)+
+    labs(title = 'Frequency polygon : Area income vs clicked on ad', x = 'Area income', y = 'clicked on ad', fill = 'Clicked on ad') +
+        scale_color_brewer(palette = 'Set1') +
+        theme(plot.title = element_text(size = 18, face = 'bold', color = 'darkmagenta'),
+             axis.title.x = element_text(size = 15, face = 'bold', color = 'darkmagenta'),
+             axis.title.y = element_text(size = 15, face = 'bold', color = 'darkmagenta'),
+             axis.text.x = element_text(size = 13),
+             axis.text.y = element_text(size = 13),
+             legend.title = element_text(size = 13, color = 'darkmagenta'),
+             legend.text = element_text(size = 12))
+```
+
+
+#### Multivariate Analysis
+##### Correlation Plot
+```{r}
+library(ggcorrplot)
+corr = round(cor(select_if(adv, is.numeric)), 4)
+ggcorrplot(corr, hc.order = T, ggtheme = ggplot2::theme_grey,
+   colors = c("cyan", "peachpuff4", "pink"), lab = T)
+```
+We observe that daily time spent on site and daily internet usage are highly related
+
+```{r}
+# Pairplot
+pairs(adv[,c(1,2,3,4)])
+```
+
+
+
+
+
